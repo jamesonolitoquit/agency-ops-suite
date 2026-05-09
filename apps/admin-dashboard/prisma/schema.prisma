@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// MODULE 1: Lead Intake + CRM
+model Lead {
+  id                String   @id @default(cuid())
+  name              String
+  email             String?
+  phone             String?
+  businessType      String   // e.g., "ecommerce", "consulting", "saas"
+  source            String   // "landing_page", "referral", "cold_outreach"
+  status            String   @default("new") // new/contacted/replied/closed/lost
+  notes             String?  // append-only or editable field
+  contactedAt       DateTime?
+  lastContactedAt   DateTime?
+  closedAt          DateTime?
+  convertedToClientId String? // FK to client if converted
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// MODULE 2: Client System
+model Client {
+  id                String   @id @default(cuid())
+  name              String
+  businessType      String
+  domain            String
+  plan              String   // "starter", "professional", "enterprise"
+  monthlyFee        Float    // in cents for precision
+  status            String   @default("active") // active/paused/churned
+  readyForDeploy    Boolean  @default(false) // SAFEGUARD: blocks deployment
+  liveUrl           String?  // e.g., "https://client.com"
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  provisioning      ProvisioningRun[]
+  checklist         DeploymentChecklist[]
+  billing           Billing[]
+  requests          ClientRequest[]
+  reports           Report[]
+
+  @@index([status])
+  @@index([readyForDeploy])
+  @@index([createdAt])
+}
+
+// MODULE 3: Provisioning System
+model ProvisioningRun {
+  id                String   @id @default(cuid())
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  template          String   // which template was used
+  domain            String
+  status            String   @default("pending") // pending/in_progress/success/failed
+  errorMessage      String?  // SAFEGUARD: logged for debugging
+  outputPath        String?  // where the built site is stored
+  httpCheckPassed   Boolean? // SAFEGUARD: did site return 200?
+  createdAt         DateTime @default(now())
+  completedAt       DateTime?
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// MODULE 4: Deployment Checklist
+model DeploymentChecklist {
+  id                String   @id @default(cuid())
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  // Checklist items (static config, one per client)
+  domainConnected   Boolean  @default(false)
+  sslActive         Boolean  @default(false)
+  ctaWorks          Boolean  @default(false)
+  mobileResponsive  Boolean  @default(false)
+  seoMetaTags       Boolean  @default(false)
+  
+  // Timestamps for each completion
+  domainConnectedAt DateTime?
+  sslActiveAt       DateTime?
+  ctaWorksAt        DateTime?
+  mobileResponsiveAt DateTime?
+  seoMetaTagsAt     DateTime?
+  
+  completionPercent Float   @default(0) // calculated field (0-100)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([clientId])
+  @@index([clientId])
+}
+
+// MODULE 5: Billing System
+model Billing {
+  id                String   @id @default(cuid())
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  amount            Float    // monthly fee in cents
+  dueDate           DateTime
+  paid              Boolean  @default(false)
+  lastPaidAt        DateTime? // SAFEGUARD: track payment history
+  nextDueDate       DateTime? // auto-calculated
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([dueDate])
+  @@index([paid])
+}
+
+// MODULE 6: Request Queue
+model ClientRequest {
+  id                String   @id @default(cuid())
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  title             String
+  description       String?
+  status            String   @default("pending") // pending/in_progress/done
+  priority          String   @default("medium") // low/medium/high
+  
+  createdAt         DateTime @default(now())
+  completedAt       DateTime?
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// MODULE 7: Reporting
+model Report {
+  id                String   @id @default(cuid())
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  periodStart       DateTime
+  periodEnd         DateTime
+  reportType        String   @default("monthly_summary")
+  periodLabel       String?
+  updatesCount      Int      @default(0) // requests completed in period
+  requestsCompleted Int      @default(0)
+  billingStatus     String?  // "paid", "pending", "overdue"
+  summary           String?
+  exportFormat      String   @default("json")
+  
+  createdAt         DateTime @default(now())
+
+  @@index([clientId])
+  @@index([periodStart, periodEnd])
+}
+
+// MODULE 8: Backup System
+model BackupLog {
+  id                String   @id @default(cuid())
+  status            String   // "pending", "success", "failed"
+  filePath          String?  // path to backup file
+  fileExists        Boolean? // SAFEGUARD: validation check
+  errorMessage      String?
+  createdAt         DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// MODULE 9: Logging System (reference, actual logs go to files)
+model ApiLog {
+  id                String   @id @default(cuid())
+  level             String   // "info", "error"
+  message           String
+  meta              String?  // JSON stringified
+  context           String?  // "provisioning", "api", "backup"
+  createdAt         DateTime @default(now())
+
+  @@index([level])
+  @@index([context])
+  @@index([createdAt])
+}

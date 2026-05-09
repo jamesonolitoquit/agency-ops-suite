@@ -1,0 +1,98 @@
+# Production Environment Configuration
+#
+# This file defines environment variables for production deployment on Vercel.
+# 
+# IMPORTANT:
+# - DO NOT commit this file to git
+# - Add this to .gitignore
+# - Set these values in Vercel project settings instead
+# - Use Vercel's built-in secret management: https://vercel.com/docs/projects/environment-variables
+#
+# For reference on what values should be set, see below.
+# In practice, you'll set these in the Vercel dashboard.
+
+# ============================================================================
+# DATABASE CONFIGURATION (Supabase - PRODUCTION)
+# ============================================================================
+# These point to your PRODUCTION Supabase project
+# Get these from: https://supabase.com → Production Project → Settings → API
+
+NEXT_PUBLIC_SUPABASE_URL=https://prod-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# ============================================================================
+# APPLICATION CONFIGURATION
+# ============================================================================
+
+# NEVER use seed data in production
+NEXT_PUBLIC_USE_SEED_DATA=false
+
+# NEVER allow auth bypass in production
+DEV_AUTH_BYPASS=false
+
+# Production admin emails only
+# Keep this minimal - only actual operators should access
+ADMIN_EMAIL_ALLOWLIST=ops@youragency.com,admin@youragency.com
+
+# ============================================================================
+# LEAD INTAKE CONFIGURATION
+# ============================================================================
+
+# PRODUCTION shared secret (DIFFERENT from local!)
+# This is what the public site uses to authenticate lead submissions
+# Store this securely - rotate every 90 days
+# Generate: openssl rand -hex 32
+INTAKE_WEBHOOK_SECRET=production-secret-rotate-quarterly
+
+# Rate limiting (production defaults)
+INTAKE_RATE_LIMIT_WINDOW_MS=60000
+INTAKE_RATE_LIMIT_MAX_REQUESTS=100
+
+# Idempotency cache TTL (10 minutes)
+INTAKE_IDEMPOTENCY_TTL_MS=600000
+
+# ============================================================================
+# DEBUG & LOGGING
+# ============================================================================
+
+# NEVER enable debug logging in production
+DEBUG=false
+
+# Disable analytics in Next.js
+NEXT_PUBLIC_ANALYTICS_DISABLED=true
+
+# ============================================================================
+# OPTIONAL: API INTEGRATIONS (ADD LATER)
+# ============================================================================
+
+# Sentry error tracking (optional, for production debugging)
+# SENTRY_AUTH_TOKEN=your-sentry-token
+
+# Email service (for sending to clients)
+# SENDGRID_API_KEY=your-sendgrid-key
+
+# Payment processor (when ready)
+# STRIPE_SECRET_KEY=sk_live_...
+# STRIPE_PUBLISHABLE_KEY=pk_live_...
+
+# ============================================================================
+# HOW TO SET THESE IN VERCEL
+# ============================================================================
+#
+# 1. Go to your Vercel project dashboard
+# 2. Click "Settings" → "Environment Variables"
+# 3. For each variable above, click "Add"
+# 4. Set Name = variable name
+# 5. Set Value = the secret/value
+# 6. Select environments: Production (not Preview or Development)
+# 7. Click "Save"
+#
+# For secrets that rotate (like INTAKE_WEBHOOK_SECRET):
+# 1. Copy the current secret
+# 2. Set it in a new Preview variable first (for testing)
+# 3. Update Production
+# 4. Update your public site's matching variable
+# 5. All sites update at next deployment
+#
+# ============================================================================
