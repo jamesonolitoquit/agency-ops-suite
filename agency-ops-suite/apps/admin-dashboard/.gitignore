@@ -1,0 +1,7 @@
+# Generated artifacts that should stay out of source control.
+dev.log
+dev-server.log
+logs/
+backups/
+test-results/
+test-*.js
