@@ -1,0 +1,59 @@
+name: Admin Dashboard CI
+
+on:
+  pull_request:
+    paths:
+      - "apps/admin-dashboard/**"
+      - ".github/workflows/admin-dashboard-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/admin-dashboard/**"
+      - ".github/workflows/admin-dashboard-ci.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Smoke tests
+        run: npm run test:smoke --workspace apps/admin-dashboard
+
+      - name: Production build
+        run: npm run build --workspace apps/admin-dashboard
+
+  security-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Temporary exception: moderate PostCSS advisory tracked in docs/SECURITY_ADVISORY_EXCEPTION.md.
+      # Review date: 2026-05-07.
+      - name: Run production audit (high severity gate)
+        run: npm audit --workspace apps/admin-dashboard --omit=dev --audit-level=high

@@ -1,0 +1,37 @@
+{
+  "name": "@agency-ops/admin-dashboard",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "backup": "node scripts/backup.js",
+    "lint": "next lint",
+    "test:smoke": "node --test tests/smoke.test.mjs",
+    "test:staging-smoke": "node tests/ensure-staging-live-env.mjs && node --test tests/staging-smoke.test.mjs",
+    "test:intake-live": "node tests/ensure-intake-live-env.mjs && node --test tests/intake-live.test.mjs",
+    "test:intake-live:raw": "node --test tests/intake-live.test.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.8",
+    "pdfkit": "^0.13.0",
+    "get-stream": "^8.0.0",
+    "stripe": "^17.0.0",
+    "resend": "^3.0.0",
+    "next": "^16.2.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^22.15.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3"
+  }
+}

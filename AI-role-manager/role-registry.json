@@ -1,0 +1,135 @@
+{
+  "version": "2.0",
+  "project": "Portfolio Website",
+  "description": "Role registry for refining a personal portfolio and planning/building sample websites as proof projects.",
+  "currentPhase": "Portfolio Refinement + Sample Concept Development",
+  "globalContext": [
+    "portfolio-website/README.md",
+    "portfolio-website/package.json",
+    "portfolio-website/tsconfig.json"
+  ],
+  "roles": {
+    "router": {
+      "file": "router.md",
+      "purpose": "Classify tasks and route them to the best portfolio role",
+      "priority": 0,
+      "keywords": [
+        "which role",
+        "help me start",
+        "where to start",
+        "triage",
+        "multi-step"
+      ],
+      "canDelegateTo": [
+        "architect",
+        "engineer",
+        "qa-specialist",
+        "content-strategist"
+      ]
+    },
+    "architect": {
+      "file": "roles/architect.md",
+      "purpose": "Define information architecture, sample website concepts, prioritization, and implementation roadmap",
+      "priority": 1,
+      "keywords": [
+        "plan",
+        "architecture",
+        "site structure",
+        "user flow",
+        "roadmap",
+        "sample website",
+        "concept",
+        "scope",
+        "prioritize",
+        "technical spec"
+      ],
+      "contextFiles": [
+        "portfolio-website/README.md",
+        "portfolio-website/src/app",
+        "portfolio-website/src/components"
+      ],
+      "fallback": "engineer"
+    },
+    "engineer": {
+      "file": "roles/engineer.md",
+      "purpose": "Implement and debug portfolio and sample website features with Next.js, TypeScript, Tailwind, and motion",
+      "priority": 1,
+      "keywords": [
+        "implement",
+        "build",
+        "refactor",
+        "component",
+        "typescript",
+        "next.js",
+        "tailwind",
+        "animation",
+        "bug",
+        "fix",
+        "error",
+        "lint",
+        "build failure"
+      ],
+      "contextFiles": [
+        "portfolio-website/package.json",
+        "portfolio-website/tsconfig.json",
+        "portfolio-website/src/app",
+        "portfolio-website/src/components",
+        "portfolio-website/src/lib"
+      ],
+      "fallback": "qa-specialist"
+    },
+    "qa-specialist": {
+      "file": "roles/qa-specialist.md",
+      "purpose": "Review quality, accessibility, SEO basics, performance regressions, and portfolio publish readiness",
+      "priority": 1,
+      "keywords": [
+        "review",
+        "audit",
+        "quality",
+        "accessibility",
+        "a11y",
+        "performance",
+        "seo",
+        "lighthouse",
+        "validate",
+        "test"
+      ],
+      "contextFiles": [
+        "portfolio-website/src/app",
+        "portfolio-website/src/components",
+        "portfolio-website/eslint.config.mjs",
+        "portfolio-website/vercel.json"
+      ],
+      "fallback": "engineer"
+    },
+    "content-strategist": {
+      "file": "roles/world-author.md",
+      "purpose": "Craft compelling portfolio and sample-project copy, case studies, and conversion-focused messaging",
+      "priority": 1,
+      "keywords": [
+        "portfolio copy",
+        "about section",
+        "case study",
+        "project narrative",
+        "project description",
+        "headline",
+        "cta",
+        "seo copy",
+        "personal brand",
+        "storytelling"
+      ],
+      "contextFiles": [
+        "portfolio-website/README.md",
+        "portfolio-website/src/app",
+        "portfolio-website/public"
+      ],
+      "fallback": "architect"
+    }
+  },
+  "classificationRules": {
+    "method": "keyword_match_with_intent",
+    "priority": "highest_intent_confidence_then_keyword_density",
+    "ambiguousThreshold": "If two roles tie, ask which outcome matters first: plan, build, audit, or copy.",
+    "multiTaskRule": "Split multi-goal requests into ordered sub-tasks with one role each, typically Architect -> Content Strategist -> Engineer -> QA Specialist."
+  }
+}
