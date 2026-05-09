@@ -7,6 +7,8 @@
     "start": "next start",
     "backup": "node scripts/backup.js",
     "lint": "next lint",
+    "hygiene:check": "node scripts/hygiene-check.mjs && npm run test:smoke && node --import tsx --test tests/schema-health.test.ts && node --import tsx --test tests/payment-reconciliation.test.ts",
+    "hygiene:files": "node scripts/hygiene-check.mjs",
     "test:smoke": "node --test tests/smoke.test.mjs",
     "test:staging-smoke": "node tests/ensure-staging-live-env.mjs && node --test tests/staging-smoke.test.mjs",
     "test:intake-live": "node tests/ensure-intake-live-env.mjs && node --test tests/intake-live.test.mjs",
