@@ -55,6 +55,10 @@ Before deploying the admin dashboard, verify:
 - [SUPABASE_QUICKSTART.md](docs/SUPABASE_QUICKSTART.md) - Fast setup guide for data/auth integration.
 - [OPERATIONAL_READINESS_ARCHITECTURE.md](docs/OPERATIONAL_READINESS_ARCHITECTURE.md) - Complete gap analysis, pre-launch validation.
 
+## Archived Projects
+
+Inactive or experimental projects have been intentionally archived to reduce operational overhead. See [/ARCHIVED_PROJECTS.md](../ARCHIVED_PROJECTS.md) for details and status.
+
 ## QA Commands
 
 - `npm run test:smoke --workspace apps/admin-dashboard` - baseline route/auth/intake rejection checks.
