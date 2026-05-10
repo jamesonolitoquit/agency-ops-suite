@@ -3,11 +3,31 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+// Lazy-load the client to handle missing env vars during build
+let clientInstance: any = null;
+
+function getSupabaseClient() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
+  if (!clientInstance) {
+    clientInstance = createClient(supabaseUrl, supabaseAnonKey);
+  }
+
+  return clientInstance;
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// For backward compatibility, export as a callable getter
+export const supabase = new Proxy({} as any, {
+  get(target, prop) {
+    const client = getSupabaseClient();
+    return (client as any)[prop];
+  },
+});
+
+// Or just use getSupabaseClient directly in new code
+export { getSupabaseClient };
 
 // Helper functions for common operations
 

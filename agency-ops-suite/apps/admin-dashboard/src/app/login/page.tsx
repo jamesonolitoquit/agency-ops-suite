@@ -43,9 +43,9 @@ export default async function LoginPage({
         <div className="relative rounded-2xl border border-white/10 bg-gradient-to-br from-white/8 to-white/5 backdrop-blur-md p-8 shadow-2xl">
           {/* Header */}
           <div className="space-y-2 mb-8">
-            <p className="text-xs uppercase tracking-[0.25em] text-accent-400 font-semibold">Admin Access</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-accent-400 font-semibold">Secure Workspace</p>
             <h1 className="text-4xl font-bold text-white">Sign in</h1>
-            <p className="text-sm text-slate-400">Access the Agency Ops admin dashboard</p>
+            <p className="text-sm text-slate-400">Access live operations for clients, billing, audits, proposals, and contracts.</p>
           </div>
 
           {/* Form */}

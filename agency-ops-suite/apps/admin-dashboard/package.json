@@ -13,7 +13,9 @@
     "test:staging-smoke": "node tests/ensure-staging-live-env.mjs && node --test tests/staging-smoke.test.mjs",
     "test:intake-live": "node tests/ensure-intake-live-env.mjs && node --test tests/intake-live.test.mjs",
     "test:intake-live:raw": "node --test tests/intake-live.test.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "setup:e2e:auth-users": "node ./scripts/setup-e2e-auth-users.mjs",
+    "seed:e2e": "node ./scripts/seed-e2e.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

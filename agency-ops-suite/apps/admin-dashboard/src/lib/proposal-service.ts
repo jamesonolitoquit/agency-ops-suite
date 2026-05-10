@@ -10,10 +10,20 @@ import {
   saveProposal as saveEphemeralProposal,
 } from './ephemeral-store';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy-load Supabase client to handle missing env vars during build
+let supabaseInstance: any = null;
+
+function getSupabaseClient() {
+  if (!supabaseInstance) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) {
+      throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required');
+    }
+    supabaseInstance = createClient(url, key);
+  }
+  return supabaseInstance;
+}
 
 export type ProposalScope = 'Basic' | 'Standard' | 'Premium' | 'Custom';
 export type ProposalStatus = 'draft' | 'sent' | 'accepted' | 'declined';
@@ -152,7 +162,7 @@ export async function generateProposalFromAudit(params: GenerateProposalParams) 
   try {
     // Fetch audit data
     let auditData: any = null;
-    const { data: fetchedAuditData, error: auditError } = await supabase
+    const { data: fetchedAuditData, error: auditError } = await getSupabaseClient()
       .from('audit_reports')
       .select('*')
       .eq('id', params.auditId)
@@ -176,7 +186,7 @@ export async function generateProposalFromAudit(params: GenerateProposalParams) 
     const publicToken = generatePublicToken();
     const projectName = params.projectName || `${params.prospectCompany} - Web Development`;
 
-    const { data: proposalData, error: insertError } = await supabase
+    const { data: proposalData, error: insertError } = await getSupabaseClient()
       .from('proposals')
       .insert({
         audit_id: params.auditId,
@@ -252,7 +262,7 @@ export async function createProposal(
   try {
     const publicToken = generatePublicToken();
 
-    const { data: proposalData, error } = await supabase
+    const { data: proposalData, error } = await getSupabaseClient()
       .from('proposals')
       .insert({
         prospect_name: data.prospect_name,
@@ -316,7 +326,7 @@ export async function createProposal(
 
 // Get proposal by ID (auth required)
 export async function getProposalById(proposalId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from('proposals')
     .select('*')
     .eq('id', proposalId)
@@ -332,7 +342,7 @@ export async function getProposalById(proposalId: string) {
 
 // Get public proposal (no auth)
 export async function getPublicProposal(token: string) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from('proposals')
     .select('*')
     .eq('public_token', token)
@@ -349,7 +359,7 @@ export async function getPublicProposal(token: string) {
 
 // List proposals for user
 export async function listProposals(userId: string, limit = 20) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from('proposals')
     .select('*')
     .eq('created_by', userId)
@@ -380,7 +390,7 @@ export async function updateProposalStatus(
     updates.final_quote = finalQuote;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from('proposals')
     .update(updates)
     .eq('id', proposalId)
@@ -393,7 +403,7 @@ export async function updateProposalStatus(
 
 // Publish proposal (make public)
 export async function publishProposal(proposalId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from('proposals')
     .update({ is_public: true })
     .eq('id', proposalId)
@@ -409,7 +419,7 @@ export async function updateProposal(
   proposalId: string,
   updates: Partial<ProposalData>
 ) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from('proposals')
     .update(updates)
     .eq('id', proposalId)
@@ -426,7 +436,7 @@ export async function updateProposal(
 
 // Log proposal action
 export async function logProposalAction(proposalId: string, action: string) {
-  const { error } = await supabase
+  const { error } = await getSupabaseClient()
     .from('proposal_audit_log')
     .insert({
       proposal_id: proposalId,

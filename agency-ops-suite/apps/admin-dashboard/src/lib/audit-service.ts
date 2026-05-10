@@ -8,10 +8,20 @@ import {
   saveAudit as saveEphemeralAudit,
 } from './ephemeral-store';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy-load Supabase client to handle missing env vars during build
+let supabaseInstance: any = null;
+
+function getSupabaseClient() {
+  if (!supabaseInstance) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) {
+      throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required');
+    }
+    supabaseInstance = createClient(url, key);
+  }
+  return supabaseInstance;
+}
 
 export type ProjectType = 'landing-page' | 'ecommerce' | 'corporate' | 'saas' | 'blog';
 
@@ -163,7 +173,7 @@ export async function generateAudit(url: string, projectType: ProjectType, userI
 
     // Create audit record with pending status
     const publicToken = generatePublicToken();
-    const { data: auditRecord, error: insertError } = await supabase
+    const { data: auditRecord, error: insertError } = await getSupabaseClient()
       .from('audit_reports')
       .insert({
         website_url: url,
@@ -199,7 +209,7 @@ export async function generateAudit(url: string, projectType: ProjectType, userI
     let updateError: unknown = null;
 
     if (auditRecord && !insertError) {
-      const updateResponse = await supabase
+      const updateResponse = await getSupabaseClient()
         .from('audit_reports')
         .update({
           performance: Math.round(mockLhrData.categories.performance.score * 100),
@@ -270,7 +280,7 @@ export async function generateAudit(url: string, projectType: ProjectType, userI
 
 // Fetch audit report by ID
 export async function getAuditById(auditId: string) {
-  const { data, error } = await supabase.from('audit_reports').select('*').eq('id', auditId).single();
+  const { data, error } = await getSupabaseClient().from('audit_reports').select('*').eq('id', auditId).single();
 
   if (error) {
     const ephemeral = getEphemeralAuditById(auditId);
@@ -282,7 +292,7 @@ export async function getAuditById(auditId: string) {
 
 // Fetch public audit report by token (no auth required)
 export async function getPublicAudit(token: string) {
-  const { data, error } = await supabase.from('audit_reports').select('*').eq('public_token', token).eq('is_public', true).single();
+  const { data, error } = await getSupabaseClient().from('audit_reports').select('*').eq('public_token', token).eq('is_public', true).single();
 
   if (error) {
     const ephemeral = getEphemeralPublicAudit(token);
@@ -294,7 +304,7 @@ export async function getPublicAudit(token: string) {
 
 // List all audits for authenticated user
 export async function listAudits(userId: string, limit = 20) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabaseClient()
     .from('audit_reports')
     .select('*')
     .eq('created_by', userId)

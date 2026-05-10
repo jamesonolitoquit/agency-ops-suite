@@ -48,7 +48,7 @@ export default async function ProposalsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {proposals.map((proposal) => (
+            {proposals.map((proposal: any) => (
               <ProposalCard
                 key={proposal.id}
                 id={proposal.id}

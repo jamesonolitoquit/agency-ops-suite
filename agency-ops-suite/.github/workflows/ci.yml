@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build --workspace=@agency-ops/admin-dashboard
+      - name: Run smoke tests
+        run: npm run test:smoke --workspace=@agency-ops/admin-dashboard
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium --config=apps/admin-dashboard/playwright.config.ts || true

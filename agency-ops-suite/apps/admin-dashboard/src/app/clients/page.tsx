@@ -18,7 +18,7 @@ export default async function ClientsPage({
         <p className="text-sm uppercase tracking-[0.3em] text-accent-200">Clients</p>
         <h1 className="mt-3 text-3xl font-semibold text-white">Client CRM foundation</h1>
         <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
-          This page holds the first working client table, including plan, fee, billing cycle, status, and notes.
+          Manage live client records for plan, billing cycle, delivery status, deployment readiness, and notes.
         </p>
 
         <form action={createClientAction} className="mt-6 grid gap-3 md:grid-cols-3">
@@ -62,6 +62,12 @@ export default async function ClientsPage({
       </div>
 
       <div className="space-y-4">
+        {clients.length === 0 && (
+          <article className="rounded-3xl border border-dashed border-white/20 bg-white/5 p-8 text-center">
+            <h2 className="text-lg font-semibold text-white">No clients yet</h2>
+            <p className="mt-2 text-sm text-slate-300">Create your first client above to start tracking delivery and billing.</p>
+          </article>
+        )}
         {clients.map((client) => (
           <article key={client.id} className="rounded-3xl border border-white/10 bg-white/5 p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
