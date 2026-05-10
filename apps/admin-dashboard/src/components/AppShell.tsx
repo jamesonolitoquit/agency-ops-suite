@@ -31,20 +31,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <div className="min-h-screen px-4 py-8 md:px-8">{children}</div>;
   }
 
-  // Show loading state while checking auth
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent-500/10 border border-accent-500/20">
-            <div className="w-8 h-8 border-2 border-accent-500/20 border-t-accent-500 rounded-full animate-spin" />
-          </div>
-          <p className="text-slate-400">Verifying authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen text-slate-100 md:flex">
       <aside className="border-b border-white/10 bg-black/20 px-5 py-6 md:min-h-screen md:w-72 md:border-b-0 md:border-r md:px-6">
@@ -81,6 +67,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-8">
+          {loading && (
+            <p className="mb-3 text-xs text-slate-400">Verifying authentication...</p>
+          )}
           <AuthButtons />
         </div>
       </aside>

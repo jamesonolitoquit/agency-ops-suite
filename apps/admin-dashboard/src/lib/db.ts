@@ -15,7 +15,31 @@ import type {
   ReportRunRecord
 } from "./model";
 
-const USE_SEED_DATA = process.env.NEXT_PUBLIC_USE_SEED_DATA === "true";
+const REQUESTS_TABLE_PRIMARY = "client_requests";
+const REQUESTS_TABLE_LEGACY = "requests";
+const ASSETS_TABLE_PRIMARY = "client_assets";
+const ASSETS_TABLE_LEGACY = "assets";
+
+function isProductionLikeEnv() {
+  return process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
+}
+
+function isSeedModeEnabled() {
+  const requested = process.env.NEXT_PUBLIC_USE_SEED_DATA === "true";
+  if (!requested) {
+    return false;
+  }
+
+  // Never allow demo seed mode in production-like environments.
+  if (isProductionLikeEnv()) {
+    console.warn("[db] Ignoring NEXT_PUBLIC_USE_SEED_DATA=true in production-like environment.");
+    return false;
+  }
+
+  return true;
+}
+
+const USE_SEED_DATA = isSeedModeEnabled();
 
 type SupabaseErrorLike = {
   code?: string;
@@ -27,6 +51,13 @@ function isExpectedUnauthedReadError(error: unknown) {
   const message = (value.message ?? "").toLowerCase();
 
   return value.code === "42501" || message.includes("permission denied");
+}
+
+function isMissingRelationError(error: unknown) {
+  const value = (error ?? {}) as SupabaseErrorLike;
+  const message = (value.message ?? "").toLowerCase();
+
+  return value.code === "42P01" || message.includes("does not exist");
 }
 
 function logReadFailure(action: string, error: unknown) {
@@ -334,10 +365,17 @@ export async function getRequests(): Promise<RequestRecord[]> {
 
   try {
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("requests")
+    let { data, error } = await supabase
+      .from(REQUESTS_TABLE_PRIMARY)
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (error && isMissingRelationError(error)) {
+      ({ data, error } = await supabase
+        .from(REQUESTS_TABLE_LEGACY)
+        .select("*")
+        .order("created_at", { ascending: false }));
+    }
 
     if (error) {
       logReadFailure("fetch requests", error);
@@ -364,7 +402,10 @@ export async function updateRequestStatus(requestId: string, status: "pending" |
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("requests").update({ status }).eq("id", requestId);
+  let { error } = await supabase.from(REQUESTS_TABLE_PRIMARY).update({ status }).eq("id", requestId);
+  if (error && isMissingRelationError(error)) {
+    ({ error } = await supabase.from(REQUESTS_TABLE_LEGACY).update({ status }).eq("id", requestId));
+  }
   return { error: error?.message ?? null };
 }
 
@@ -379,12 +420,16 @@ export async function createRequestRecord(input: {
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("requests").insert({
+  const payload = {
     client_id: input.clientId,
     title: input.title,
     description: input.description,
     status: input.status
-  });
+  };
+  let { error } = await supabase.from(REQUESTS_TABLE_PRIMARY).insert(payload);
+  if (error && isMissingRelationError(error)) {
+    ({ error } = await supabase.from(REQUESTS_TABLE_LEGACY).insert(payload));
+  }
 
   return { error: error?.message ?? null };
 }
@@ -488,10 +533,17 @@ export async function getAssets(): Promise<AssetRecord[]> {
 
   try {
     const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("assets")
+    let { data, error } = await supabase
+      .from(ASSETS_TABLE_PRIMARY)
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (error && isMissingRelationError(error)) {
+      ({ data, error } = await supabase
+        .from(ASSETS_TABLE_LEGACY)
+        .select("*")
+        .order("created_at", { ascending: false }));
+    }
 
     if (error) {
       logReadFailure("fetch assets", error);
@@ -525,13 +577,17 @@ export async function createAssetRecord(input: {
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("assets").insert({
+  const payload = {
     client_id: input.clientId,
     name: input.name,
     asset_url: input.assetUrl,
     asset_type: input.assetType,
     notes: input.notes
-  });
+  };
+  let { error } = await supabase.from(ASSETS_TABLE_PRIMARY).insert(payload);
+  if (error && isMissingRelationError(error)) {
+    ({ error } = await supabase.from(ASSETS_TABLE_LEGACY).insert(payload));
+  }
 
   return { error: error?.message ?? null };
 }
@@ -548,8 +604,8 @@ export async function updateAssetRecord(input: {
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
-    .from("assets")
+  let { error } = await supabase
+    .from(ASSETS_TABLE_PRIMARY)
     .update({
       name: input.name,
       asset_url: input.assetUrl,
@@ -557,6 +613,18 @@ export async function updateAssetRecord(input: {
       notes: input.notes
     })
     .eq("id", input.id);
+
+  if (error && isMissingRelationError(error)) {
+    ({ error } = await supabase
+      .from(ASSETS_TABLE_LEGACY)
+      .update({
+        name: input.name,
+        asset_url: input.assetUrl,
+        asset_type: input.assetType,
+        notes: input.notes
+      })
+      .eq("id", input.id));
+  }
 
   return { error: error?.message ?? null };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import type { User } from "@supabase/supabase-js";
@@ -21,20 +21,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
+  const hasSupabaseConfig = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+  const supabase = useMemo(() => {
+    if (!hasSupabaseConfig) {
+      return null;
+    }
+
+    return createClient();
+  }, [hasSupabaseConfig]);
 
   // Initialize auth state
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      setError(null);
+      setUser(null);
+      return;
+    }
+
     const initializeAuth = async () => {
       try {
         setLoading(true);
         setError(null);
 
         // Get the current session
+        const sessionResult = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Auth session check timed out")), 4000)
+          )
+        ]);
+
         const {
           data: { session },
           error: sessionError,
-        } = await supabase.auth.getSession();
+        } = sessionResult;
 
         if (sessionError) throw sessionError;
 
@@ -60,6 +83,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Listen for auth state changes
   useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === "SIGNED_IN" && session?.user) {
@@ -93,6 +120,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Handle session expiry with automatic redirect
   useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
     const checkSessionExpiry = async () => {
       const {
         data: { session },
@@ -114,6 +145,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     try {
+      if (!supabase) {
+        setUser(null);
+        setError(null);
+        router.push("/login");
+        return;
+      }
+
       logAuthEvent("signout_initiated", { userId: user?.id });
       await supabase.auth.signOut();
       setUser(null);
@@ -129,6 +167,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshSession = useCallback(async () => {
     try {
+      if (!supabase) {
+        setUser(null);
+        setError(null);
+        return;
+      }
+
       const {
         data: { session },
         error: refreshError,

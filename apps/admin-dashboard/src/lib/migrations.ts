@@ -6,10 +6,14 @@ import { createClient } from '@supabase/supabase-js';
  */
 
 export async function applyAuditReportsMigration() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!url || !key) {
+    throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required');
+  }
+  
+  const supabase = createClient(url, key);
 
   const migrationSQL = `
 -- Create audit_reports table

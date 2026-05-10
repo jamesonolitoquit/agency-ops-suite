@@ -1,13 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-
-// Helper function to sign in using the same pattern as auth.spec.ts
-async function signInAsAdmin(page: Page) {
-  await page.goto('/login');
-  await page.getByLabel('Email address').fill('jumpstarthost@gmail.com');
-  await page.getByLabel('Password').fill('TestPass123!');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page).toHaveURL(/\/$/);
-}
+import { signInAsAdmin } from './test-auth';
 
 // Helper to get auth cookies
 async function getAuthCookie(page: Page) {

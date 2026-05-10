@@ -23,7 +23,7 @@ export default async function BillingPage({
         <p className="text-sm uppercase tracking-[0.3em] text-accent-200">Billing</p>
         <h1 className="mt-3 text-3xl font-semibold text-white">Billing tracker</h1>
         <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">
-          This page will show due dates, payment method, and paid state so you can manage collections manually first.
+          Track live due dates, payment method, paid state, and collection progress for each client.
         </p>
 
         <form action={createBillingAction} className="mt-6 grid gap-3 md:grid-cols-3">
@@ -100,6 +100,13 @@ export default async function BillingPage({
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
+            {upcomingBills.length === 0 && (
+              <tr>
+                <td colSpan={8} className="px-6 py-8 text-center text-slate-300">
+                  No billing records yet. Add your first record above.
+                </td>
+              </tr>
+            )}
             {upcomingBills.map((bill) => (
               <tr key={bill.id} className="text-slate-200">
                 <td className="px-6 py-4 font-medium text-white">{clientNamesById.get(bill.clientId) ?? bill.clientId}</td>

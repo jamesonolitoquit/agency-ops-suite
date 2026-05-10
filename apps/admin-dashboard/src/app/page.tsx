@@ -190,7 +190,7 @@ export default async function DashboardHome() {
 
       <section className="grid gap-4 lg:grid-cols-2">
         <article className="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <h2 className="text-lg font-semibold text-white">Seed clients</h2>
+          <h2 className="text-lg font-semibold text-white">Recent clients</h2>
           <div className="mt-4 space-y-3">
             {clients.map((client) => (
               <div key={client.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">

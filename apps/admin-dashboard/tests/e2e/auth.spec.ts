@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { E2E_NON_ADMIN_EMAIL, E2E_NON_ADMIN_PASSWORD, signInAsAdmin } from './test-auth';
 
 function decodeSessionCookie(value: string) {
   const rawValue = value.startsWith('base64-') ? value.slice('base64-'.length) : value;
@@ -12,18 +13,12 @@ function encodeSessionCookie(session: Record<string, unknown>) {
   return `base64-${Buffer.from(JSON.stringify(session)).toString('base64')}`;
 }
 
-async function signInAsAdmin(page: Page) {
-  await page.goto('/login');
-  await page.getByLabel('Email address').fill('jumpstarthost@gmail.com');
-  await page.getByLabel('Password').fill('TestPass123!');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page).toHaveURL(/\/$/);
-}
-
 test('non-admin login is rejected with not_allowed', async ({ page }) => {
+  test.skip(!E2E_NON_ADMIN_EMAIL || !E2E_NON_ADMIN_PASSWORD, 'Set E2E_NON_ADMIN_EMAIL and E2E_NON_ADMIN_PASSWORD to run non-admin auth test.');
+
   await page.goto('/login');
-  await page.getByLabel('Email address').fill('testuser-nonadmin@example.com');
-  await page.getByLabel('Password').fill('TestPass123!');
+  await page.getByLabel('Email address').fill(E2E_NON_ADMIN_EMAIL ?? '');
+  await page.getByLabel('Password').fill(E2E_NON_ADMIN_PASSWORD ?? '');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   await expect(page).toHaveURL(/\/(login(\?error=not_allowed)?|)$/);
@@ -31,12 +26,7 @@ test('non-admin login is rejected with not_allowed', async ({ page }) => {
 });
 
 test('allowlisted admin reaches the dashboard', async ({ page }) => {
-  await page.goto('/login');
-  await page.getByLabel('Email address').fill('jumpstarthost@gmail.com');
-  await page.getByLabel('Password').fill('TestPass123!');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-
-  await expect(page).toHaveURL(/\/$/);
+  await signInAsAdmin(page);
   await expect(page.getByRole('heading', { name: /Agency control center/i })).toBeVisible();
 });
 
