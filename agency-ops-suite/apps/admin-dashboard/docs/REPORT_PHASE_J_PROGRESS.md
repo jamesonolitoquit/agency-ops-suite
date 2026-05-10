@@ -42,7 +42,7 @@ Next: Local testing and deployment automation.
 - `src/app/api/webhooks/stripe/route.ts` - Production webhook handler
 - `src/components/PaymentComponents.tsx` - Reusable UI components
 - `src/app/admin/webhooks/page.tsx` - Webhook debugging interface
-- `STRIPE_SETUP.md` - Comprehensive setup guide
+- `GUIDE_STRIPE_SETUP.md` - Comprehensive setup guide
 
 ### Email Infrastructure (Tasks 41-47)
 
@@ -60,7 +60,7 @@ Next: Local testing and deployment automation.
 - `src/lib/email-templates.ts` - 400+ lines with 4 email templates
 - `src/app/api/admin/email-preview/route.ts` - Template previewer
 - `supabase/migrations/005_create_email_events.sql` - Email event tracking
-- `EMAIL_SETUP.md` - Resend integration guide
+- `GUIDE_EMAIL_SETUP.md` - Resend integration guide
 
 **Integration Points**:
 - Payment received email sent automatically when invoice marked paid
@@ -292,8 +292,8 @@ Both packages are production-ready and widely used.
 
 ## Support Resources
 
-- **Stripe Setup**: See [STRIPE_SETUP.md](STRIPE_SETUP.md)
-- **Email Setup**: See [EMAIL_SETUP.md](EMAIL_SETUP.md)
+- **Stripe Setup**: See [GUIDE_STRIPE_SETUP.md](GUIDE_STRIPE_SETUP.md)
+- **Email Setup**: See [GUIDE_EMAIL_SETUP.md](GUIDE_EMAIL_SETUP.md)
 - **Codebase**: See inline documentation in source files
 - **Database**: See migration files in `supabase/migrations/`
 
