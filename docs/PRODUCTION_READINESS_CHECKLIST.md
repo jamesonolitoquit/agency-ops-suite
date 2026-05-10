@@ -418,7 +418,7 @@ This checklist verifies the Agency Ops Suite is operationally ready for first re
 - [x] Auth flow documented (DASHBOARD_AUTH_FLOW.md)
 - [x] FK relationships documented (FK_DELETE_MATRIX.md)
 - [x] Monitoring setup documented (MONITORING_COMPLETION.md)
-- [x] API endpoints documented (API_DOCUMENTATION.md)
+- [x] API endpoints documented (apps/admin-dashboard/docs/REFERENCE_API_DOCUMENTATION.md)
 - [ ] Code comments on complex logic
 - [ ] README updated with setup instructions
 

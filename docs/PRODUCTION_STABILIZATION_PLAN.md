@@ -926,7 +926,7 @@ Create `docs/WORKFLOW_VALIDATION_RESULTS.md` capturing:
 - [ ] `docs/DELETE_BEHAVIOR_TESTS.md` — FK cascade verification
 - [ ] `docs/MONITORING_EVENTS.md` — System events logging
 - [ ] `docs/WORKFLOW_VALIDATION_RESULTS.md` — End-to-end test results
-- [ ] Updated `API_DOCUMENTATION.md` with auth examples
+- [ ] Updated `apps/admin-dashboard/docs/REFERENCE_API_DOCUMENTATION.md` with auth examples
 
 ### Code (Required)
 - [ ] Auth middleware (`src/middleware.ts`)

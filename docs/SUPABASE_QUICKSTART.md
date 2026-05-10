@@ -69,7 +69,7 @@ Open:
 
 - Log in and open dashboard pages.
 - Confirm records come from DB, not seed data.
-- Use LOCAL_LIVE_TEST_CHECKLIST.md to run full checks.
+- Use apps/admin-dashboard/docs/CHECKLIST_LOCAL_LIVE_TEST.md to run full checks.
 
 ## Notes
 
