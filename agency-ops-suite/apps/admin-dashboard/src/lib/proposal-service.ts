@@ -202,6 +202,7 @@ export async function generateProposalFromAudit(params: GenerateProposalParams) 
         estimated_total_hours: total_hours,
         public_token: publicToken,
         status: 'draft',
+        is_public: true,
         created_by: params.userId,
         created_at: new Date(),
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
@@ -226,7 +227,7 @@ export async function generateProposalFromAudit(params: GenerateProposalParams) 
         estimated_total_hours: total_hours,
         public_token: proposalData?.public_token ?? publicToken,
         status: 'draft',
-        is_public: false,
+        is_public: true,
         created_by: params.userId,
         created_at: proposalData?.created_at ?? new Date().toISOString(),
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),

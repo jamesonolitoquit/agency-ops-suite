@@ -1,8 +1,14 @@
 import React from 'react';
 import ContractSignForm from '@/components/ContractSignForm';
+import { headers } from 'next/headers';
 
 async function fetchPayload(token: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/contracts/sign/${encodeURIComponent(token)}`, { cache: 'no-store' });
+  const requestHeaders = await headers();
+  const forwardedHost = requestHeaders.get('x-forwarded-host');
+  const host = forwardedHost || requestHeaders.get('host') || process.env.NEXT_PUBLIC_APP_URL || '';
+  const protocol = requestHeaders.get('x-forwarded-proto') || 'https';
+  const baseUrl = host.startsWith('http') ? host : `${protocol}://${host}`;
+  const res = await fetch(`${baseUrl}/api/contracts/sign/${encodeURIComponent(token)}`, { cache: 'no-store' });
   if (!res.ok) {
     const json = await res.json().catch(() => ({}));
     throw new Error(json?.error || 'failed');
@@ -11,9 +17,10 @@ async function fetchPayload(token: string) {
   return json.contract;
 }
 
-export default async function Page({ params }: { params: { token: string } }) {
+export default async function Page({ params }: { params: Promise<{ token: string }> }) {
   try {
-    const contract = await fetchPayload(params.token);
+    const { token } = await params;
+    const contract = await fetchPayload(token);
     return (
       <main style={{ padding: 24 }}>
         <h1>Sign Contract {contract.contract_number}</h1>
@@ -26,7 +33,7 @@ export default async function Page({ params }: { params: { token: string } }) {
           />
         </section>
         <section style={{ marginTop: 12 }}>
-          <ContractSignForm token={params.token} />
+          <ContractSignForm token={token} />
         </section>
       </main>
     );

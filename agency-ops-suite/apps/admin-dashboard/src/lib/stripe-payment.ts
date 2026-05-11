@@ -8,6 +8,24 @@ const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SEC
 
 export { stripe };
 
+function resolveClientEmail(client: any, clientId: string) {
+  return (
+    client?.email ||
+    client?.contact_email ||
+    client?.user_email ||
+    `client-${clientId}@example.com`
+  );
+}
+
+function resolveAppBaseUrl() {
+  const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (configured) return configured;
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (!vercelUrl) return 'http://localhost:3000';
+  return vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`;
+}
+
 export async function getOrCreateStripeCustomer(clientId: string, email: string, name: string) {
   const supabase = await getClient();
 
@@ -53,6 +71,7 @@ export async function createCheckoutSession(
   invoiceNumber: string
 ) {
   const supabase = await getClient();
+  const appBaseUrl = resolveAppBaseUrl();
 
   // Create Stripe checkout session
   if (!stripe) throw new Error('Stripe not configured');
@@ -74,8 +93,8 @@ export async function createCheckoutSession(
       },
     ],
     mode: 'payment',
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/invoices/${invoiceId}?payment=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/invoices/${invoiceId}?payment=cancelled`,
+    success_url: `${appBaseUrl}/invoices/${invoiceId}?payment=success`,
+    cancel_url: `${appBaseUrl}/invoices/${invoiceId}?payment=cancelled`,
     metadata: {
       invoiceId,
       clientName,
@@ -111,7 +130,7 @@ export async function markInvoiceAsPaid(invoiceId: string, stripePaymentIntentId
       status: 'paid',
     })
     .eq('id', invoiceId)
-    .select('*, clients(name, email)')
+    .select('*, clients(*)')
     .single();
 
   if (error) throw error;
@@ -151,9 +170,10 @@ export async function markInvoiceAsPaid(invoiceId: string, stripePaymentIntentId
 
   // Send payment received email
   try {
-    if (data.clients?.email) {
+    const clientEmail = resolveClientEmail(data.clients, data.client_id);
+    if (clientEmail) {
       await sendPaymentReceivedEmail(
-        data.clients.email,
+        clientEmail,
         data.clients.name,
         data.invoice_number,
         data.total
@@ -230,7 +250,7 @@ export async function getInvoiceWithStripeData(invoiceId: string) {
 
   const { data, error } = await supabase
     .from('invoices')
-    .select('*, clients(name, email)')
+    .select('*, clients(*)')
     .eq('id', invoiceId)
     .single();
 
