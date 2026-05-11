@@ -1,0 +1,29 @@
+name: CI — tests
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm ci
+        working-directory: ./agency-ops-suite/apps/admin-dashboard
+      - name: Install Playwright deps
+        run: npx playwright install --with-deps
+        working-directory: ./agency-ops-suite/apps/admin-dashboard
+      - name: Run smoke tests
+        run: npm run test:smoke
+        working-directory: ./agency-ops-suite/apps/admin-dashboard
+      - name: Run Playwright tests (headful)
+        run: npx playwright test -c playwright.config.ts --reporter=list
+        working-directory: ./agency-ops-suite/apps/admin-dashboard

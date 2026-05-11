@@ -51,6 +51,12 @@
 - [ ] At least one concrete capability is demonstrated (performance, accessibility, conversion UX, interaction design, data UX).
 - [ ] Demo-ready assets are present (screenshots/video notes/case-study inputs).
 
+### 6. File Organization Hygiene
+- [ ] Duplicate or obsolete files are identified and removed or intentionally retained.
+- [ ] Generated artifacts are ignored or cleaned up before commit.
+- [ ] Naming is consistent across docs, registry keys, and file names.
+- [ ] Role instructions point to one canonical path per concept.
+
 ---
 
 ## Context Loading Guide
@@ -60,3 +66,4 @@
 | General review | `portfolio-website/src/app`, `portfolio-website/src/components` |
 | Config and standards | `portfolio-website/eslint.config.mjs`, `portfolio-website/tsconfig.json` |
 | Deployment readiness | `portfolio-website/vercel.json`, metadata/layout files |
+| File organization | `AI-role-manager/README.md`, `AI-role-manager/router.md`, `AI-role-manager/role-registry.json` |

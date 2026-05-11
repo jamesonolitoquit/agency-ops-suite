@@ -126,6 +126,11 @@
       "fallback": "architect"
     }
   },
+  "organizationNotes": [
+    "Use Content Strategist in prose; keep content-strategist as the registry key.",
+    "Prefer one canonical role file per responsibility.",
+    "Treat QA Specialist as the final quality gate before publish or deploy."
+  ],
   "classificationRules": {
     "method": "keyword_match_with_intent",
     "priority": "highest_intent_confidence_then_keyword_density",

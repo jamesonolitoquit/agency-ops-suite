@@ -19,6 +19,7 @@
 - Improve portfolio clarity, credibility, and conversion.
 - Plan and ship sample websites that strengthen portfolio proof.
 - Sequence work so strategy happens before implementation and QA.
+- Keep the naming convention stable: use `Content Strategist` in prose and `content-strategist` in registry keys.
 
 ---
 

@@ -16,6 +16,12 @@
 3. Engineer: implement the MVP and integrate showcase sections.
 4. QA Specialist: validate release quality and portfolio publish readiness.
 
+### File Organization Notes
+
+- Use `Content Strategist` in prose and `content-strategist` in the registry key.
+- Keep one canonical file per role; do not create parallel role prompts for the same purpose.
+- Route ambiguous work through `router.md` before starting implementation or QA.
+
 ## Role Index
 
 | Role | File | When to Use |
