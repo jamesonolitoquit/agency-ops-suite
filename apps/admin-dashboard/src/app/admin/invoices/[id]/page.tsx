@@ -1,15 +1,22 @@
 import React from 'react';
 import { PaymentStatusBadge, InvoicePaymentButton } from '@/components/PaymentComponents';
+import { headers } from 'next/headers';
 
 async function fetchInvoice(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/invoices/${id}`, { cache: 'no-store' });
+  const requestHeaders = await headers();
+  const forwardedHost = requestHeaders.get('x-forwarded-host');
+  const host = forwardedHost || requestHeaders.get('host') || process.env.NEXT_PUBLIC_APP_URL || '';
+  const protocol = requestHeaders.get('x-forwarded-proto') || 'https';
+  const baseUrl = host.startsWith('http') ? host : `${protocol}://${host}`;
+  const res = await fetch(`${baseUrl}/api/invoices/${id}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed');
   const json = await res.json();
   return json.invoice;
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const invoice = await fetchInvoice(params.id);
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const invoice = await fetchInvoice(id);
   const clientName = invoice.clients?.name ?? '';
 
   return (

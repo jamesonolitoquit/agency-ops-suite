@@ -7,14 +7,15 @@ interface Params {
   token: string;
 }
 
-export default async function PublicProposalPage({ params }: { params: Params }) {
+export default async function PublicProposalPage({ params }: { params: Promise<Params> }) {
+  const { token } = await params;
   const supabase = await createClient();
 
   // Use service role for public access
   const { data: proposal } = await supabase
     .from('proposals')
     .select('*')
-    .eq('public_token', params.token)
+    .eq('public_token', token)
     .eq('is_public', true)
     .single();
 

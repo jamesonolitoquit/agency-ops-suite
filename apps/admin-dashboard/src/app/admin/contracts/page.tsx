@@ -1,7 +1,13 @@
 import React from 'react';
+import { headers } from 'next/headers';
 
 async function fetchContracts() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/contracts`, { cache: 'no-store' });
+  const requestHeaders = await headers();
+  const forwardedHost = requestHeaders.get('x-forwarded-host');
+  const host = forwardedHost || requestHeaders.get('host') || process.env.NEXT_PUBLIC_APP_URL || '';
+  const protocol = requestHeaders.get('x-forwarded-proto') || 'https';
+  const baseUrl = host.startsWith('http') ? host : `${protocol}://${host}`;
+  const res = await fetch(`${baseUrl}/api/contracts`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch contracts');
   const json = await res.json();
   return json.contracts ?? [];

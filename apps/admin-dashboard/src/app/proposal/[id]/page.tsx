@@ -9,7 +9,8 @@ interface Params {
   id: string;
 }
 
-export default async function ProposalDetailPage({ params }: { params: Params }) {
+export default async function ProposalDetailPage({ params }: { params: Promise<Params> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -17,7 +18,7 @@ export default async function ProposalDetailPage({ params }: { params: Params })
     redirect('/login');
   }
 
-  const proposal = await getProposalById(params.id);
+  const proposal = await getProposalById(id);
 
   if (!proposal || proposal.created_by !== user.id) {
     notFound();
