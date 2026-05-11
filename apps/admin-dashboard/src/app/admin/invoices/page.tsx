@@ -7,7 +7,7 @@ async function fetchInvoices() {
   const supabase = await getClient();
   const { data, error } = await supabase
     .from('invoices')
-    .select('*, clients(name, email)')
+    .select('*, clients(*)')
     .order('created_at', { ascending: false })
     .limit(100);
 
