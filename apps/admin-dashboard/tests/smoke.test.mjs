@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const baseUrl = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
+const hasExplicitIntakeSecret = Boolean(
+  process.env.SMOKE_INTAKE_SECRET ?? process.env.INTAKE_WEBHOOK_SECRET
+);
 const intakeSecret =
   process.env.SMOKE_INTAKE_SECRET ??
   process.env.INTAKE_WEBHOOK_SECRET ??
@@ -91,7 +94,7 @@ test("lead intake endpoint rejects invalid shared secret", async () => {
   assert.equal(response.status, 401);
 });
 
-test("lead intake endpoint rejects missing required fields", async () => {
+test("lead intake endpoint rejects missing required fields", { skip: !hasExplicitIntakeSecret }, async () => {
   const response = await fetch(new URL("/api/intake/lead", baseUrl), {
     method: "POST",
     headers: {
@@ -106,7 +109,7 @@ test("lead intake endpoint rejects missing required fields", async () => {
   assert.equal(response.status, 400);
 });
 
-test("lead intake endpoint rejects malformed JSON payload", async () => {
+test("lead intake endpoint rejects malformed JSON payload", { skip: !hasExplicitIntakeSecret }, async () => {
   const response = await fetch(new URL("/api/intake/lead", baseUrl), {
     method: "POST",
     headers: {

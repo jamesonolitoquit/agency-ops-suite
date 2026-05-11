@@ -42,6 +42,7 @@ export default async function DashboardHome() {
   const expiringDomains = domains.filter((domain) => domain.status === "expiring_soon" || domain.status === "expired").length;
   const pendingProvisioningRuns = provisioningRuns.filter((run) => run.status === "pending").length;
   const recentReportRuns = reportRuns.length;
+  const latestReportRun = reportRuns[0] ?? null;
   const recentAuditEvents = auditLogs.length;
   const contentLoad = activeClients.length > 0 ? Math.round((reportRuns.length / activeClients.length) * 100) : 0;
   const totalBillings = billing.length;
@@ -87,13 +88,13 @@ export default async function DashboardHome() {
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <Link
-              href="/api/report/export"
+              href={latestReportRun ? `/api/report/export?reportRunId=${latestReportRun.id}` : "/reports"}
               className="rounded-full border border-accent-300 bg-accent-500/20 px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-500/35"
             >
               Export report
             </Link>
             <Link
-              href="/api/report/export?format=json"
+              href={latestReportRun ? `/api/report/export?reportRunId=${latestReportRun.id}&format=json` : "/reports"}
               className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:border-accent-300 hover:bg-accent-500/15"
             >
               Export JSON
