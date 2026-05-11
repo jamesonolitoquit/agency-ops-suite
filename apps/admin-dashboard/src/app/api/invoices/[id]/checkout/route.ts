@@ -26,7 +26,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     // Get or create Stripe customer
-    const clientEmail = invoice.clients?.email || `client-${invoice.client_id}@example.com`;
+    const clientEmail =
+      invoice.clients?.email ||
+      invoice.clients?.contact_email ||
+      invoice.clients?.user_email ||
+      `client-${invoice.client_id}@example.com`;
     const clientName = invoice.clients?.name || 'Client';
 
     const stripeCustomerId = await getOrCreateStripeCustomer(invoice.client_id, clientEmail, clientName);
