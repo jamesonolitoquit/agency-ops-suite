@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_d2kdghP9xlONLHhJk5DwCMzxmIUZ",
+      "name": "birthday-website",
+      "directory": ".",
+      "orgId": "team_bKakMxI1QDy3G8b8Qpk2MOY4"
+    }
+  ]
+}
