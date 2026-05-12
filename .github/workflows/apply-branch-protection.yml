@@ -1,0 +1,31 @@
+name: Apply Branch Protection
+on:
+  workflow_dispatch:
+    inputs:
+      branches:
+        description: 'Comma-separated list of branches to protect'
+        default: 'main'
+      contexts:
+        description: 'Required status checks'
+        default: 'CI - Scanners,E2E - Protected Staging'
+      allowed_users:
+        description: 'Users allowed to bypass/push'
+      allowed_apps:
+        description: 'Apps allowed to bypass/push'
+
+jobs:
+  apply-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply Branch Protection via API
+        run: |
+          curl -X PUT \
+            -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/branches/${{ github.event.inputs.branches }}/protection \
+            -d '{
+              "required_status_checks": { "strict": true, "contexts": ["${{ github.event.inputs.contexts }}"] },
+              "enforce_admins": true,
+              "required_pull_request_reviews": { "dismiss_stale_reviews": true, "required_approving_review_count": 1 },
+              "restrictions": { "users": ["${{ github.event.inputs.allowed_users }}"], "teams": [], "apps": ["${{ github.event.inputs.allowed_apps }}"] }
+            }'
