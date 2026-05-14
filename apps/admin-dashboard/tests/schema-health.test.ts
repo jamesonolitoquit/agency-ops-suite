@@ -2,8 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://127.0.0.1:3000';
+const hasSchemaEnv = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 test('Schema Health Check', async (t) => {
+  if (!hasSchemaEnv) {
+    await t.test('GET /api/health/schema returns 200 when schema is accessible (skipped: SUPABASE_SERVICE_ROLE_KEY missing)', { skip: true }, async () => {});
+    await t.test('Returns structured response with timestamp (skipped: SUPABASE_SERVICE_ROLE_KEY missing)', { skip: true }, async () => {});
+    return;
+  }
+
   await t.test('GET /api/health/schema returns 200 when schema is accessible', async () => {
     const res = await fetch(`${BASE_URL}/api/health/schema`);
     

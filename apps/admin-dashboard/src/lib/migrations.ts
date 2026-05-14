@@ -82,9 +82,9 @@ CREATE POLICY IF NOT EXISTS "Public audits are viewable" ON audit_reports
     // Note: This approach won't work with standard Supabase API
     // You need to use the SQL Editor in the Supabase dashboard
     // or use supabase-cli
-    console.log('❌ Direct SQL execution not available via Supabase client library.');
-    console.log('Please apply this migration manually in the Supabase dashboard SQL editor:');
-    console.log(migrationSQL);
+    console.warn('❌ Direct SQL execution not available via Supabase client library.');
+    console.warn('Please apply this migration manually in the Supabase dashboard SQL editor:');
+    console.warn(migrationSQL);
     
     return { success: false, message: 'Apply migration manually' };
   } catch (error) {

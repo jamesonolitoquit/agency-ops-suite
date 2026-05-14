@@ -1,0 +1,98 @@
+name: E2E - Protected Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: 'Optional run identifier for logs'
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Validate E2E env
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          INTAKE_WEBHOOK_SECRET: ${{ secrets.INTAKE_WEBHOOK_SECRET }}
+        run: node scripts/validate-e2e-env.mjs
+
+      - name: Run E2E tests
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          INTAKE_WEBHOOK_SECRET: ${{ secrets.INTAKE_WEBHOOK_SECRET }}
+        run: npm run test:e2e --workspace apps/admin-dashboard
+name: Protected E2E - Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_against:
+        description: 'URL to run E2E against (overrides staging)'
+        required: false
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Ensure required secrets
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          if [ -z "$STAGING_BASE_URL" ] || [ -z "$STAGING_SUPABASE_URL" ] || [ -z "$STAGING_SUPABASE_SERVICE_ROLE_KEY" ] || [ -z "$STRIPE_SECRET_KEY" ] || [ -z "$RESEND_API_KEY" ]; then
+            echo "One or more required secrets are missing in repository secrets. Aborting."; exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright E2E against staging
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.run_against || secrets.STAGING_BASE_URL }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          npm run --workspace apps/admin-dashboard test:e2e

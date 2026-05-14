@@ -19,12 +19,10 @@ export async function info(message: string, meta?: any) {
     await fs.appendFile(logFile, JSON.stringify(payload) + '\n');
   } catch (e) {
     // fallback to console
-    // eslint-disable-next-line no-console
-    console.log('[logger] ', JSON.stringify(payload));
+    console.warn('[logger] ', JSON.stringify(payload));
   }
   // also print to console for dev visibility
-  // eslint-disable-next-line no-console
-  console.log(message, meta ?? '');
+  console.warn(message, meta ?? '');
 }
 
 export async function warn(message: string, meta?: any) {
@@ -33,10 +31,8 @@ export async function warn(message: string, meta?: any) {
   try {
     await fs.appendFile(logFile, JSON.stringify(payload) + '\n');
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.warn('[logger] ', JSON.stringify(payload));
   }
-  // eslint-disable-next-line no-console
   console.warn(message, meta ?? '');
 }
 
@@ -46,9 +42,7 @@ export async function error(message: string, meta?: any) {
   try {
     await fs.appendFile(logFile, JSON.stringify(payload) + '\n');
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error('[logger] ', JSON.stringify(payload));
   }
-  // eslint-disable-next-line no-console
   console.error(message, meta ?? '');
 }

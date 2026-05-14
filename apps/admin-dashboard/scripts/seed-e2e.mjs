@@ -49,7 +49,6 @@ async function loadSeed() {
     if (endIndex === -1) throw new Error('Could not find end of seedData object');
     const objectLiteral = objText.slice(firstBrace, endIndex + 1);
     // Evaluate the object literal in a Function to get a runtime object
-    // eslint-disable-next-line no-new-func
     const seed = Function(`return (${objectLiteral});`)();
     return seed;
   } catch (err) {
