@@ -263,7 +263,7 @@ export async function getInvoiceWithStripeData(invoiceId: string) {
 
   const { data: client, error: clientError } = await supabase
     .from('clients')
-    .select('id, name, email, contact_email, user_email')
+    .select('id, name, contact_email, user_email')
     .eq('id', invoice.client_id)
     .maybeSingle();
 
