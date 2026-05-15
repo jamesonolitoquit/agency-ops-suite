@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { getClient } from './supabase/server';
+import { createServiceClient } from './supabase/service';
 import { sendPaymentReceivedEmail } from './email-templates';
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -27,7 +27,7 @@ function resolveAppBaseUrl() {
 }
 
 export async function getOrCreateStripeCustomer(clientId: string, email: string, name: string) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
 
   // Check if we already have a Stripe customer for this client
   const { data: existing } = await supabase
@@ -70,7 +70,7 @@ export async function createCheckoutSession(
   clientName: string,
   invoiceNumber: string
 ) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
   const appBaseUrl = resolveAppBaseUrl();
 
   // Create Stripe checkout session
@@ -119,7 +119,7 @@ export async function createCheckoutSession(
 }
 
 export async function markInvoiceAsPaid(invoiceId: string, stripePaymentIntentId: string) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
   const now = new Date();
 
   const { data, error } = await supabase
@@ -193,7 +193,7 @@ export async function recordWebhookEvent(
   eventType: string,
   data: any
 ) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
 
   // Check if we've already processed this webhook
   const { data: existing } = await supabase
@@ -226,7 +226,7 @@ export async function recordWebhookEvent(
 }
 
 export async function markWebhookEventProcessed(eventId: string, error?: string) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
 
   const payload: any = {
     processed: !error,
@@ -247,7 +247,7 @@ export async function markWebhookEventProcessed(eventId: string, error?: string)
 }
 
 export async function getInvoiceWithStripeData(invoiceId: string) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
 
   const { data: invoice, error } = await supabase
     .from('invoices')
@@ -286,7 +286,7 @@ export async function handlePaymentIntentSucceeded(paymentIntent: Stripe.Payment
 }
 
 export async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
   const invoiceId = paymentIntent.metadata?.invoiceId;
 
   if (!invoiceId) {
@@ -338,7 +338,7 @@ export async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentInt
 }
 
 export async function handleChargeRefunded(charge: Stripe.Charge) {
-  const supabase = await getClient();
+  const supabase = createServiceClient();
   const invoiceId = charge.metadata?.invoiceId;
 
   if (!invoiceId) {
