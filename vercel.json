@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build --workspace apps/admin-dashboard",
+  "buildCommand": "cd apps/admin-dashboard && npm run build",
   "outputDirectory": "apps/admin-dashboard/.next",
   "framework": "nextjs",
   "installCommand": "npm install",
