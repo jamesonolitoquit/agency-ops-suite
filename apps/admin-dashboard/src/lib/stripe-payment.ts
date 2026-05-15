@@ -87,7 +87,8 @@ export async function createCheckoutSession(
             name: `Invoice ${invoiceNumber}`,
             description: `Payment for ${clientName}`,
           },
-          unit_amount: Math.round(amount * 100),
+          // Amounts are stored in cents throughout the app, so pass them through directly.
+          unit_amount: Math.round(amount),
         },
         quantity: 1,
       },
@@ -248,14 +249,30 @@ export async function markWebhookEventProcessed(eventId: string, error?: string)
 export async function getInvoiceWithStripeData(invoiceId: string) {
   const supabase = await getClient();
 
-  const { data, error } = await supabase
+  const { data: invoice, error } = await supabase
     .from('invoices')
-    .select('*, clients(*)')
+    .select('*')
     .eq('id', invoiceId)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
-  return data;
+
+  if (!invoice) {
+    return null;
+  }
+
+  const { data: client, error: clientError } = await supabase
+    .from('clients')
+    .select('id, name, email, contact_email, user_email')
+    .eq('id', invoice.client_id)
+    .maybeSingle();
+
+  if (clientError) throw clientError;
+
+  return {
+    ...invoice,
+    clients: client ?? null,
+  };
 }
 
 export async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {

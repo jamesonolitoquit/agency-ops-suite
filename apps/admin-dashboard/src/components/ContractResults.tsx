@@ -18,6 +18,7 @@ export interface Contract {
   created_at: string;
   signed_at?: string;
   public_token: string;
+  signing_token?: string | null;
   signature?: any;
   deliverables: any[];
 }
@@ -33,7 +34,9 @@ export function ContractResults({ contract, isPublic = false, onStatusChange }: 
   const [isUpdating, setIsUpdating] = useState(false);
 
   const publicUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/contract/report/${contract.public_token}`;
-  const signUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/api/contract/public/${contract.public_token}/sign`;
+  const signingUrl = contract.signing_token
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/contracts/sign/${contract.signing_token}`
+    : '';
 
   function copyToClipboard() {
     navigator.clipboard.writeText(publicUrl);
@@ -133,20 +136,29 @@ export function ContractResults({ contract, isPublic = false, onStatusChange }: 
       )}
 
       {/* Signature Section */}
-      {!isPublic && !contract.signature && contract.status !== 'signed' && (
+      {!isPublic && !contract.signature && contract.status !== 'signed' && contract.status !== 'draft' && signingUrl && (
         <div className="rounded-lg border border-accent-500/20 bg-accent-500/10 p-6">
           <h3 className="text-lg font-semibold text-accent-300 mb-2">Ready for Signature</h3>
           <p className="text-sm text-slate-400 mb-4">
             Share the signing link with your client to collect e-signature
           </p>
           <Link
-            href={signUrl}
+            href={signingUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-6 py-2 rounded-lg bg-gradient-to-r from-accent-500 to-accent-600 text-white font-semibold hover:shadow-lg"
           >
             View Signing Page
           </Link>
+        </div>
+      )}
+
+      {!isPublic && !contract.signature && contract.status === 'draft' && !signingUrl && (
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-6">
+          <h3 className="text-lg font-semibold text-amber-300 mb-2">Send Required</h3>
+          <p className="text-sm text-slate-400">
+            This contract is still a draft. Use the contract admin send action to generate a signing link.
+          </p>
         </div>
       )}
 
