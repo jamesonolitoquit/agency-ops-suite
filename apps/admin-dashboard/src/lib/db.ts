@@ -17,8 +17,8 @@ import type {
 
 const REQUESTS_TABLE_PRIMARY = "client_requests";
 const REQUESTS_TABLE_LEGACY = "requests";
-const ASSETS_TABLE_PRIMARY = "client_assets";
-const ASSETS_TABLE_LEGACY = "assets";
+const ASSETS_TABLE_PRIMARY = "assets";
+const ASSETS_TABLE_LEGACY = "client_assets";
 
 function isProductionLikeEnv() {
   return process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";

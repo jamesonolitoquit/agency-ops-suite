@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 import { AuditResults } from '@/components/AuditResults';
+import { resolveServerSupabaseKey, resolveServerSupabaseUrl } from '@/lib/supabase/env';
 
 interface PageParams {
   token: string;
@@ -11,8 +12,8 @@ export default async function PublicAuditPage(props: { params: Promise<PageParam
 
   // Use service role client for public access (bypass RLS)
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    resolveServerSupabaseUrl(),
+    resolveServerSupabaseKey()
   );
 
   const { data: audit, error } = await supabase

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { resolveServerSupabaseKey, resolveServerSupabaseUrl } from '@/lib/supabase/env';
 
 /**
  * Helper to apply raw SQL migrations
@@ -6,11 +7,11 @@ import { createClient } from '@supabase/supabase-js';
  */
 
 export async function applyAuditReportsMigration() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = resolveServerSupabaseUrl();
+  const key = resolveServerSupabaseKey();
   
   if (!url || !key) {
-    throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required');
+    throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY) required');
   }
   
   const supabase = createClient(url, key);
