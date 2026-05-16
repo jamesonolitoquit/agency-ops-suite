@@ -98,7 +98,7 @@ export async function requireAuth() {
     const devAuthBypassEnabled = isDevAuthBypassEnabled();
 
     if (devAuthBypassEnabled) {
-      const devAuthEmail = cookieDevEmail || process.env.DEV_AUTH_BYPASS_EMAIL;
+      const devAuthEmail = cookieDevEmail;
       const accessContext = resolveAccessContext(devAuthEmail || undefined, true);
 
       if (accessContext.hasAccess && accessContext.email) {

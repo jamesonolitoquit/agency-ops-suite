@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { getDevBypassEmail, isDevAuthBypassEnabled, resolveAccessContext } from "@/lib/access";
+import { isDevAuthBypassEnabled, resolveAccessContext } from "@/lib/access";
 import { createServiceClient } from "@/lib/supabase/service";
 import { canAccessPath } from "@/lib/rbac";
 
@@ -13,7 +13,7 @@ function getDevAuthEmail(request: NextRequest) {
     request.headers.get('x-dev-auth-email')?.trim() ||
     request.cookies.get("dev-auth-email")?.value?.trim() ||
     request.nextUrl.searchParams.get("dev-auth-email")?.trim() ||
-    getDevBypassEmail()
+    null
   );
 }
 
