@@ -21,7 +21,7 @@ async function run() {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const file = path.join(outDir, `backup-${timestamp}.json`);
 
-  const base = 'http://localhost:3000';
+  const base = process.env.DEPLOYMENT_URL || 'http://localhost:3000';
   const endpoints = [
     '/api/test-leads',
     '/api/test-clients',

@@ -1,0 +1,46 @@
+# NPM Publish Ignore
+
+# Build system and tools
+.ai/
+.turbo/
+.next/
+dist/
+coverage/
+
+# Development
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+CONTRIBUTING.md
+docs/**
+
+# Tests
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+jest.config.js
+vitest.config.ts
+
+# Configuration
+tsconfig.json
+tsconfig.*.json
+.eslintrc*
+prettier.config.js
+postcss.config.js
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Environment
+.env*
+!.env.example

@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  allowedDevOrigins: ['localhost', '127.0.0.1'],
   serverExternalPackages: ['pdfkit', 'fontkit', 'get-stream'],
   images: {
     // Mitigates known self-hosted next/image optimizer risk until major upgrade.

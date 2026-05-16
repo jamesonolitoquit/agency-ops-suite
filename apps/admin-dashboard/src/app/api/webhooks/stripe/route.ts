@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'invalid_signature' }, { status: 401 });
     }
 
-    console.log(`[Webhook] Processing Stripe event: ${event.type} (${event.id})`);
+    console.warn(`[Webhook] Processing Stripe event: ${event.type} (${event.id})`);
 
     // Check if we've already processed this event (idempotency)
     const { alreadyProcessed, id: eventRecordId } = await recordWebhookEvent(
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     );
 
     if (alreadyProcessed) {
-      console.log(`[Webhook] Event already processed: ${event.id}`);
+      console.warn(`[Webhook] Event already processed: ${event.id}`);
       return NextResponse.json({ ok: true, alreadyProcessed: true });
     }
 
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         case 'payment_intent.succeeded': {
           const paymentIntent = event.data.object as any;
           await handlePaymentIntentSucceeded(paymentIntent);
-          console.log(`[Webhook] Payment intent succeeded: ${paymentIntent.id}`);
+          console.warn(`[Webhook] Payment intent succeeded: ${paymentIntent.id}`);
           processed = true;
           break;
         }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         case 'payment_intent.payment_failed': {
           const paymentIntent = event.data.object as any;
           await handlePaymentIntentFailed(paymentIntent);
-          console.log(`[Webhook] Payment intent failed: ${paymentIntent.id}`);
+          console.warn(`[Webhook] Payment intent failed: ${paymentIntent.id}`);
           processed = true;
           break;
         }
@@ -76,20 +76,20 @@ export async function POST(request: Request) {
         case 'charge.refunded': {
           const charge = event.data.object as any;
           await handleChargeRefunded(charge);
-          console.log(`[Webhook] Charge refunded: ${charge.id}`);
+          console.warn(`[Webhook] Charge refunded: ${charge.id}`);
           processed = true;
           break;
         }
 
         case 'charge.dispute.created': {
-          console.log(`[Webhook] Dispute created: ${(event.data.object as any).id}`);
+          console.warn(`[Webhook] Dispute created: ${(event.data.object as any).id}`);
           // Log for investigation
           processed = true;
           break;
         }
 
         default:
-          console.log(`[Webhook] Unhandled event type: ${event.type}`);
+          console.warn(`[Webhook] Unhandled event type: ${event.type}`);
           processed = true; // Mark as processed even if unhandled
       }
     } catch (err: any) {

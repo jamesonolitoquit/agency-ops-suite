@@ -189,7 +189,7 @@ export async function GET(): Promise<NextResponse<ProvisioningHealth>> {
     };
 
     // Log health report
-    console.log('[health/provisioning] report:', {
+    console.warn('[health/provisioning] report:', {
       status: healthReport.status,
       metrics: healthReport.metrics,
       alertCount: alerts.length,

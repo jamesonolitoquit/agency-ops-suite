@@ -3,6 +3,10 @@ import fs from 'fs';
 import { config as loadEnv } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 
+function resolveSupabaseSecretKey() {
+  return process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+}
+
 for (const envFile of ['.env.local', '.env.preview.local', '.env.production.local']) {
   if (fs.existsSync(envFile)) {
     loadEnv({ path: envFile });
@@ -10,10 +14,10 @@ for (const envFile of ['.env.local', '.env.preview.local', '.env.production.loca
 }
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_ROLE_KEY = resolveSupabaseSecretKey();
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error('Missing SUPABASE_URL/NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.');
+  console.error('Missing SUPABASE_URL/NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY/SUPABASE_SERVICE_ROLE_KEY.');
   process.exit(1);
 }
 

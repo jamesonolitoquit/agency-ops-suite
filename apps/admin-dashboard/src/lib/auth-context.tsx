@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import type { User } from "@supabase/supabase-js";
+import { resolveBrowserSupabaseKey, resolveBrowserSupabaseUrl } from "@/lib/supabase/env";
 
 interface AuthContextType {
   user: User | null;
@@ -22,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasSupabaseConfig = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    resolveBrowserSupabaseUrl() && resolveBrowserSupabaseKey()
   );
   const supabase = useMemo(() => {
     if (!hasSupabaseConfig) {

@@ -26,8 +26,9 @@ const navigation = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, loading } = useAuth();
+  const showAuthLoading = loading && !user;
 
-  if (pathname === "/login") {
+  if (pathname?.startsWith("/login")) {
     return <div className="min-h-screen px-4 py-8 md:px-8">{children}</div>;
   }
 
@@ -67,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-8">
-          {loading && (
+          {showAuthLoading && (
             <p className="mb-3 text-xs text-slate-400">Verifying authentication...</p>
           )}
           <AuthButtons />

@@ -590,7 +590,6 @@ Enable safe multi-user access with proper role-based access control and audit tr
 | /reports | ✅ | ✅ | ❌ | ❌ | (own) |
 | /settings | ✅ | ❌ | ❌ | ❌ | ❌ |
 | /audit-logs | ✅ | ✅ | ❌ | ❌ | ❌ |
-| /client/portal | ✅ | ✅ | ❌ | ❌ | ✅ |
 
 ## API-Level Access Control
 
@@ -779,8 +778,8 @@ export function withRoleCheck(requiredRole: UserRole[]) {
 
 ## Test Case 5: Client Access
 - [ ] Login as client user
-- [ ] Access /client/portal → Success
-- [ ] Access /client/invoices → Success (own only)
+- [ ] Access /client/portal → Not applicable for the internal-only tool
+- [ ] Access /client/invoices → Not applicable for the internal-only tool
 - [ ] Access /clients → Forbidden (403)
 - [ ] Cannot see other clients' data
 ```
@@ -1518,7 +1517,7 @@ Revenue Dashboard
 - ✅ Proposal auto-generates from template
 - ✅ Contract signature triggers invoice
 - ✅ Payment completion triggers provisioning
-- ✅ Client portal automatically activated
+- ✅ Client-facing surface was historically activated in earlier planning notes
 - ✅ Revenue dashboard shows real-time metrics
 - ✅ Dashboard load time < 300ms
 - ✅ All workflows tested 3x with real data

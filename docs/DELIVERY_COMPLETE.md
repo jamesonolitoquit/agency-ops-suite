@@ -101,7 +101,7 @@ May 5+
 
 ### Week 3: Scale the System
 - **Multi-user access**
-- **Client portal** (if needed)
+
 - **Deployment automation**
 
 ### Week 4+: Real Growth

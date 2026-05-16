@@ -6,6 +6,10 @@ import { createClient } from '@supabase/supabase-js';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
+function resolveSupabaseSecretKey() {
+  return process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+}
+
 // Load local env files if present (same behavior as setup script)
 for (const envFile of ['.env.local', '.env.preview.local', '.env.production.local']) {
   if (fs.existsSync(envFile)) {
@@ -14,10 +18,10 @@ for (const envFile of ['.env.local', '.env.preview.local', '.env.production.loca
 }
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_KEY = resolveSupabaseSecretKey();
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. Set them in the environment and retry.');
+  console.error('Missing SUPABASE_URL or SUPABASE_SECRET_KEY/SUPABASE_SERVICE_ROLE_KEY. Set them in the environment and retry.');
   process.exit(1);
 }
 
@@ -49,7 +53,6 @@ async function loadSeed() {
     if (endIndex === -1) throw new Error('Could not find end of seedData object');
     const objectLiteral = objText.slice(firstBrace, endIndex + 1);
     // Evaluate the object literal in a Function to get a runtime object
-    // eslint-disable-next-line no-new-func
     const seed = Function(`return (${objectLiteral});`)();
     return seed;
   } catch (err) {
@@ -143,7 +146,7 @@ async function run() {
   await upsertWithFallbacks('leads', [], seed.leads || [], legacyIdMap);
   await upsertWithFallbacks('billing', [], seed.billing || [], legacyIdMap);
   await upsertWithFallbacks('client_requests', ['requests'], seed.requests || [], legacyIdMap);
-  await upsertWithFallbacks('client_assets', ['assets'], seed.assets || [], legacyIdMap);
+  await upsertWithFallbacks('assets', ['client_assets'], seed.assets || [], legacyIdMap);
   await upsertWithFallbacks('domains', [], seed.domains || [], legacyIdMap);
   await upsertWithFallbacks('tasks', [], seed.tasks || [], legacyIdMap);
   await upsertWithFallbacks('maintenance', [], seed.maintenance || [], legacyIdMap);

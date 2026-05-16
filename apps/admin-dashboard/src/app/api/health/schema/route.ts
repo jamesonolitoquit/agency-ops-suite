@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { resolveServerSupabaseKey } from '@/lib/supabase/env';
 
 /**
  * Schema Health Check Endpoint
@@ -10,11 +11,12 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Test 1: Verify environment is set
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const serviceKey = resolveServerSupabaseKey();
+    if (!serviceKey) {
       return NextResponse.json(
         {
           status: 'unhealthy',
-          reason: 'Missing SUPABASE_SERVICE_ROLE_KEY',
+          reason: 'Missing SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY',
         },
         { status: 503 }
       );

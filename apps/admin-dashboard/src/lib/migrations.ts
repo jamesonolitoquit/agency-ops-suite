@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { resolveServerSupabaseKey, resolveServerSupabaseUrl } from '@/lib/supabase/env';
 
 /**
  * Helper to apply raw SQL migrations
@@ -6,11 +7,11 @@ import { createClient } from '@supabase/supabase-js';
  */
 
 export async function applyAuditReportsMigration() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = resolveServerSupabaseUrl();
+  const key = resolveServerSupabaseKey();
   
   if (!url || !key) {
-    throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required');
+    throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY) required');
   }
   
   const supabase = createClient(url, key);
@@ -82,9 +83,9 @@ CREATE POLICY IF NOT EXISTS "Public audits are viewable" ON audit_reports
     // Note: This approach won't work with standard Supabase API
     // You need to use the SQL Editor in the Supabase dashboard
     // or use supabase-cli
-    console.log('❌ Direct SQL execution not available via Supabase client library.');
-    console.log('Please apply this migration manually in the Supabase dashboard SQL editor:');
-    console.log(migrationSQL);
+    console.warn('❌ Direct SQL execution not available via Supabase client library.');
+    console.warn('Please apply this migration manually in the Supabase dashboard SQL editor:');
+    console.warn(migrationSQL);
     
     return { success: false, message: 'Apply migration manually' };
   } catch (error) {

@@ -364,7 +364,6 @@ Output: standardized agreements
 
 Optional Later:
 
-- client portal
 - advanced analytics
 - automated reporting
 - multi-user permissions

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { randomBytes, randomUUID } from 'crypto';
+import { resolveServerSupabaseKey, resolveServerSupabaseUrl } from '@/lib/supabase/env';
 import {
   appendProposalAuditLog,
   getAuditById as getEphemeralAuditById,
@@ -15,10 +16,10 @@ let supabaseInstance: any = null;
 
 function getSupabaseClient() {
   if (!supabaseInstance) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = resolveServerSupabaseUrl();
+    const key = resolveServerSupabaseKey();
     if (!url || !key) {
-      throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required');
+      throw new Error('Missing Supabase configuration: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY) required');
     }
     supabaseInstance = createClient(url, key);
   }

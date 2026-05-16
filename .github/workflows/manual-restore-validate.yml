@@ -1,0 +1,56 @@
+name: Manual - Restore Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_path:
+        description: 'Path to backup SQL file in the repo (relative)'
+        required: true
+        default: 'backups/latest.sql'
+      checks_file:
+        description: 'Optional JSON checks file path (relative)'
+        required: false
+      keep_container:
+        description: 'Keep the ephemeral container for inspection? true/false'
+        required: false
+        default: 'false'
+      dry_run:
+        description: 'Validate inputs only without requiring Docker? true/false'
+        required: false
+        default: 'false'
+
+jobs:
+  validate-restore:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Ensure Docker available
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          docker --version
+
+      - name: Run automated restore (ephemeral Postgres)
+        run: |
+          args=("node" "scripts/automated-restore.mjs" "${{ github.event.inputs.backup_path }}")
+          if [ -n "${{ github.event.inputs.checks_file }}" ]; then
+            args+=("--checks" "${{ github.event.inputs.checks_file }}")
+          fi
+          if [ "${{ github.event.inputs.keep_container }}" = "true" ]; then
+            args+=("--keep")
+          fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            args+=("--dry-run")
+          fi
+          printf 'Running:'
+          printf ' %q' "${args[@]}"
+          printf '\n'
+          "${args[@]}"
+        # Note: checks_file is optional; set keep_container to true to retain container for inspection

@@ -142,22 +142,15 @@
 - **API Secret Auth** - INTAKE_WEBHOOK_SECRET, admin role checks
 - **Status:** Basic controls in place, professional audit pending
 
-#### Client Portal
-- **Client Login** (`/client/login`) - Separate auth pathway
-- **Client Dashboard** (`/client/dashboard`) - Private client interface
-- **Client Invoices** (`/client/invoices`) - Invoice visibility for clients
-- **Status:** Scaffolded, E2E validation pending
-
 ---
 
 ## FEATURES NEEDED (NOT YET STARTED)
 
 ### CRITICAL (Blocking expansion)
-1. **Client Portal E2E Validation** - Test complete client login → view data → download flow
-2. **Stripe Payment Processing** - Test actual payment with test card in Stripe account
-3. **Email Delivery Validation** - Verify Resend sends invoice emails correctly
-4. **Backup Restore Procedure** - Test restoring from backup (currently auto-backup only)
-5. **Performance Testing** - Load test with 5-10 concurrent users
+1. **Stripe Payment Processing** - Test actual payment with test card in Stripe account
+1. **Email Delivery Validation** - Verify Resend sends invoice emails correctly
+1. **Backup Restore Procedure** - Test restoring from backup (currently auto-backup only)
+1. **Performance Testing** - Load test with 5-10 concurrent users
 
 ### HIGH PRIORITY (Roadmap Week 1-2)
 1. **Team Member Management** - Add / remove team members, role assignment
@@ -199,11 +192,6 @@ Operations Support
 ├── Authentication ✅ (Complete)
 └── Monitoring ✅ (Ready)
 
-Client Self-Service (Needed)
-├── Client Portal 🟡 (Scaffolded)
-├── Client Invoices 🟡 (Ready)
-└── Client Reports 🟡 (Ready)
-
 Expansion Opportunities
 ├── Team Management ⚠️ (Not started)
 ├── Workflow Automation ⚠️ (Not started)
@@ -224,7 +212,6 @@ Expansion Opportunities
 | Deployment tracking | 75% | Live with core checklist | ✅ YES |
 | Contract management | 70% | Live with wizard flow | ✅ YES (basic) |
 | Provisioning | 60% | CLI works, dashboard integration pending | ⚠️ PARTIAL |
-| Client portal | 40% | Scaffolded, not E2E tested | ❌ NO (yet) |
 | Compliance automation | 20% | Schema ready, logic not implemented | ❌ NO |
 | Team management | 10% | Database structure only | ❌ NO |
 
@@ -237,10 +224,10 @@ Expansion Opportunities
 - ⏳ Stripe validation (In progress)
 - ⏳ Email delivery validation (In progress)
 - ⏳ Backup restore procedure (In progress)
-- ⏳ Client portal E2E testing (Pending)
+
 
 ### Phase 2: CUSTOMER EXPERIENCE (June 1-30)
-- Client portal full launch
+
 - Team member management (beta)
 - Advanced analytics dashboard
 - Bulk lead import
@@ -268,7 +255,7 @@ LIVE & OPERATIONAL (12 features)
 ✅ Navigation, Build system, Environment isolation
 
 READY TO ENABLE (4 features)
-🟡 Client portal (E2E test needed)
+
 🟡 Stripe payments (validation needed)
 🟡 Email delivery (validation needed)
 🟡 Provisioning integration (CLI works, dashboard sync needed)
@@ -295,7 +282,7 @@ FUTURE ROADMAP (8+ features)
 - ✅ Stripe payment flow validated (100% success on test payment)
 - ✅ Email delivery tested (invoice emails arrive within 5 minutes)
 - ✅ Backup restore procedure tested (full data restore < 30 minutes)
-- ✅ Client portal E2E passing (login → view → download works)
+
 
 **By May 31, 2026:**
 - ✅ 3+ paying customers on-boarded

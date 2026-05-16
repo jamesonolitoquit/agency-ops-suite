@@ -82,16 +82,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, leadId: cachedResult.leadId, idempotentReplay: true }, { status: 200 });
     }
 
-    const secretValidation = validateSecret(request);
-    if (!secretValidation.ok) {
-      return NextResponse.json({ error: secretValidation.error }, { status: secretValidation.status });
-    }
-
     let body: LeadIntakePayload;
     try {
       body = (await request.json()) as LeadIntakePayload;
     } catch {
       return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
+    }
+
+    const secretValidation = validateSecret(request);
+    if (!secretValidation.ok) {
+      return NextResponse.json({ error: secretValidation.error }, { status: secretValidation.status });
     }
 
     const name = body.name?.trim() ?? "";
