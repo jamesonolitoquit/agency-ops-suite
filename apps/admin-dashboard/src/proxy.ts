@@ -3,8 +3,19 @@ import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { getDevBypassEmail, isDevAuthBypassEnabled, resolveAccessContext } from "@/lib/access";
 import { createServiceClient } from "@/lib/supabase/service";
+import { canAccessPath } from "@/lib/rbac";
 
 const PUBLIC_ROUTES = ["/login", "/api/intake/lead"];
+
+function getDevAuthEmail(request: NextRequest) {
+  return (
+    // Allow header-based dev auth for programmatic requests (Playwright, curl)
+    request.headers.get('x-dev-auth-email')?.trim() ||
+    request.cookies.get("dev-auth-email")?.value?.trim() ||
+    request.nextUrl.searchParams.get("dev-auth-email")?.trim() ||
+    getDevBypassEmail()
+  );
+}
 
 // Skip proxy for static assets
 function shouldSkipProxy(pathname: string): boolean {
@@ -66,7 +77,7 @@ export async function proxy(request: NextRequest) {
   const devAuthBypassEnabled = isDevAuthBypassEnabled();
 
   if (devAuthBypassEnabled) {
-    user = { email: getDevBypassEmail() };
+    user = { email: getDevAuthEmail(request) };
   } else if (hasSupabaseEnv()) {
     try {
       const session = await updateSession(request);
@@ -80,8 +91,9 @@ export async function proxy(request: NextRequest) {
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
   const accessContext = resolveAccessContext(user?.email, devAuthBypassEnabled);
   const hasValidSession = Boolean(user);
+  const canAccessRoute = canAccessPath(accessContext.role, pathname);
 
-  if (hasValidSession && !accessContext.hasAccess) {
+  if (hasValidSession && (!accessContext.hasAccess || !canAccessRoute)) {
     void recordDeniedAccessAttempt(request, accessContext.email ?? user?.email ?? null);
 
     if (isPublicRoute) {
@@ -90,7 +102,7 @@ export async function proxy(request: NextRequest) {
 
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
-    redirectUrl.search = "error=not_allowed";
+    redirectUrl.search = "error=forbidden";
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -103,7 +115,7 @@ export async function proxy(request: NextRequest) {
 
   // Keep public API routes callable even when a user session is present.
   // Only redirect authenticated users away from the login page.
-  if (pathname === "/login" && hasValidSession && accessContext.hasAccess) {
+  if (pathname === "/login" && hasValidSession && accessContext.hasAccess && !request.nextUrl.searchParams.get("error")) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/";
     redirectUrl.search = "";
