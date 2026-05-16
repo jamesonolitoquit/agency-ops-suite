@@ -7,13 +7,13 @@ import { canAccessPath } from "@/lib/rbac";
 
 const PUBLIC_ROUTES = ["/login", "/api/intake/lead"];
 
-function getDevAuthEmail(request: NextRequest) {
+function getDevAuthEmail(request: NextRequest): string | undefined {
   return (
     // Allow header-based dev auth for programmatic requests (Playwright, curl)
     request.headers.get('x-dev-auth-email')?.trim() ||
     request.cookies.get("dev-auth-email")?.value?.trim() ||
     request.nextUrl.searchParams.get("dev-auth-email")?.trim() ||
-    null
+    undefined
   );
 }
 
