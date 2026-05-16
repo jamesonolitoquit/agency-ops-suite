@@ -278,6 +278,57 @@ create table if not exists report_runs (
 -- ============================================================
 -- AUDIT LOGS
 -- ============================================================
+create table if not exists system_events (
+  id uuid primary key default gen_random_uuid(),
+  event_type text,
+  type text,
+  severity text not null default 'info' check (severity in ('info', 'warning', 'error', 'critical')),
+  summary text,
+  metadata jsonb not null default '{}'::jsonb,
+  payload jsonb not null default '{}'::jsonb,
+  data jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  "timestamp" timestamptz,
+  request_id text,
+  endpoint text,
+  method text,
+  status_code integer,
+  user_id uuid,
+  user_email text,
+  ip text
+);
+
+create index if not exists system_events_created_at_idx on system_events (created_at desc);
+create index if not exists system_events_event_type_idx on system_events (event_type);
+create index if not exists system_events_type_idx on system_events (type);
+
+create or replace function normalize_system_events_row()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.event_type := coalesce(new.event_type, new.type, 'unknown');
+  new.type := coalesce(new.type, new.event_type);
+  new.metadata := coalesce(new.metadata, new.payload, new.data, '{}'::jsonb);
+  new.payload := coalesce(new.payload, new.metadata, new.data, '{}'::jsonb);
+  new.data := coalesce(new.data, new.payload, new.metadata, '{}'::jsonb);
+  new.summary := coalesce(new.summary, new.metadata->>'summary', new.payload->>'summary', new.data->>'summary', new.event_type);
+  new."timestamp" := coalesce(new."timestamp", new.created_at, now());
+  new.created_at := coalesce(new.created_at, new."timestamp", now());
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_normalize_system_events on system_events;
+create trigger trg_normalize_system_events
+before insert or update on system_events
+for each row
+execute function normalize_system_events_row();
+
+alter table system_events enable row level security;
+revoke all on table system_events from anon, authenticated;
+grant select, insert, update, delete on table system_events to authenticated;
+
 create table if not exists audit_logs (
   id uuid primary key default gen_random_uuid(),
   entity_type text not null,
